@@ -2,10 +2,18 @@
     "configurations": [
         {
             "type": "java",
+            "name": "MicroserviceConfigApplication",
+            "request": "launch",
+            "mainClass": "com.microservice.config.MicroserviceConfigApplication",
+            "projectName": "microservice-config"
+        },
+        {
+            "type": "java",
             "name": "MicroserviceEurekaApplication",
             "request": "launch",
             "mainClass": "com.microservice.eureka.MicroserviceEurekaApplication",
-            "projectName": "microservice-eureka"
+            "projectName": "microservice-eureka",
+            "vmArgs": " -Dcom.sun.management.jmxremote"
         },
         {
             "type": "java",
@@ -14,6 +22,16 @@
             "cwd": "${workspaceFolder}",
             "mainClass": "com.microservice.config.microservice_config.MicroserviceConfigApplication",
             "projectName": "microservice-config",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-MicroserviceGatewayApplication<microservice-gateway>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.microservice.gateway.MicroserviceGatewayApplication",
+            "projectName": "microservice-gateway",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
         }
