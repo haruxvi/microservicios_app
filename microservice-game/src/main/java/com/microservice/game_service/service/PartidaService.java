@@ -52,6 +52,7 @@ public class PartidaService {
         );
     }
 
+    @SuppressWarnings("null")
     public String finalizarPartida(FinalizarPartidaRequest request) {
         Partida partida = partidaRepository.findById(request.partidaId())
             .orElseThrow(() -> new RuntimeException("Partida no encontrada"));
