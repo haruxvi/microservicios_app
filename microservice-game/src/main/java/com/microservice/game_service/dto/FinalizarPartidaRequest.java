@@ -1,6 +1,7 @@
 package com.microservice.game_service.dto;
 
-
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 
 public record FinalizarPartidaRequest(
     @NotNull(message = "El ID de partida es obligatorio")

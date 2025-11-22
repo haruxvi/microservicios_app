@@ -1,9 +1,14 @@
-server:
-  port: 8085
-
 spring:
   application:
-    name: mcvcgame-service
+    # El nombre debe coincidir con el fichero del config-server: "msvc-game-service.yml"
+    name: msvc-game-service
+
+  # Importar propiedades desde el config-server (ejecutar config-server en http://localhost:8888)
+  config:
+    import: "optional:configserver:http://localhost:8888"
+
+server:
+  port: 8085
 
 springdoc:
   swagger-ui:
