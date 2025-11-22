@@ -3,15 +3,23 @@ server:
 
 spring:
   application:
-    name: mcvc-feedback-service
+    name: feedback-service
+
   datasource:
     url: jdbc:mysql://localhost:3306/db_quizapp?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: root
     password: 
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
   jpa:
     hibernate:
       ddl-auto: update
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
 
 eureka:
   client:
@@ -19,7 +27,25 @@ eureka:
       defaultZone: http://localhost:8761/eureka/
     register-with-eureka: true
     fetch-registry: true
+  instance:
+    instance-id: ${spring.application.name}:${random.int}
+    prefer-ip-address: true
 
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+    enabled: true
+  api-docs:
+    path: /v3/api-docs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+logging:
+  level:
+    com.example.quizapp.feedback: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql: TRACE
