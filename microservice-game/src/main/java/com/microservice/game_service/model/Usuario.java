@@ -40,25 +40,3 @@ public class Usuario {
     @JoinColumn(name = "Estado_id_estado", nullable = false)
     private Estado estado;
 }
-package com.microservice.game_service.model;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
-@Entity
-@Table(name = "Usuario")
-public class Usuario {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idUsuario;
-
-    private String nombre;
-    private String email;
-}

@@ -9,8 +9,6 @@
     <module>microservice-eureka</module>
     <module>microservice-gateway</module>
     <module>microservice-auth-service</module>
-    <module>microservice-category</module>
-    <module>microservice-difficult</module>
     <module>microservice-quiz</module>
     <module>microservice-game</module>
   </modules>
