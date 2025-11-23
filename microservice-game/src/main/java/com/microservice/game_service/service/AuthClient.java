@@ -37,4 +37,45 @@ public class AuthClient {
             throw new RuntimeException("Error al llamar auth-service", e);
         }
     }
+
+    public int obtenerPuntajeActual(Long usuarioId) {
+        try {
+            String uri = String.format(baseUrl + "/api/auth/usuario/%s/puntaje-global", usuarioId);
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(uri))
+                    .GET()
+                    .header("Accept", "application/json")
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                throw new RuntimeException("Error al obtener puntaje actual: HTTP " + response.statusCode());
+            }
+
+            String body = response.body().trim();
+            // Si el body es solo un número
+            if (body.matches("^-?\\d+$")) {
+                return Integer.parseInt(body);
+            }
+
+            // Intentar parsear JSON como mapa y buscar campos comunes
+            try {
+                @SuppressWarnings("unchecked")
+                java.util.Map<String, Object> map = objectMapper.readValue(body, java.util.Map.class);
+                for (String key : new String[]{"puntaje", "puntos", "score", "puntajeGlobal"}) {
+                    if (map.containsKey(key) && map.get(key) instanceof Number) {
+                        return ((Number) map.get(key)).intValue();
+                    }
+                }
+            } catch (Exception ex) {
+                // fallthrough
+            }
+
+            throw new RuntimeException("Respuesta inválida al obtener puntaje: " + body);
+        } catch (IOException | InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Error al llamar auth-service", e);
+        }
+    }
 }

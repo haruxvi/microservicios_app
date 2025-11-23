@@ -1,17 +1,28 @@
-spring:
-  application:
-    # El nombre debe coincidir con el fichero del config-server: "msvc-game-service.yml"
-    name: msvc-game-service
-
-  # Importar propiedades desde el config-server (ejecutar config-server en http://localhost:8888)
-  config:
-    import: "optional:configserver:http://localhost:8888"
-
 server:
   port: 8085
 
+spring:
+  application:
+    name: game-service
+  datasource:
+    url: jdbc:mysql://localhost:3306/db_quizapp?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: root
+    password: 
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
 
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
 
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+

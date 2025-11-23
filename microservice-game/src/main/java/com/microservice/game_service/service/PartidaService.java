@@ -46,24 +46,39 @@ public class PartidaService {
         );
 
         return new IniciarPartidaResponse(
-            saved.getIdPartida() != null ? saved.getIdPartida().longValue() : null,
+            java.util.Objects.requireNonNull(saved.getIdPartida(), "idPartida nulo tras persistir"),
             saved.getFCreacion(),
             preguntas
         );
     }
 
-    @SuppressWarnings("null")
-    public String finalizarPartida(FinalizarPartidaRequest request) {
+    
+    public com.microservice.game_service.dto.FinalizarPartidaResponse finalizarPartida(FinalizarPartidaRequest request) {
         Partida partida = partidaRepository.findById(request.partidaId())
             .orElseThrow(() -> new RuntimeException("Partida no encontrada"));
         partida.setFFinalizacion(LocalDateTime.now());
         partida.setPuntTotal(request.puntajeObtenido());
 
-        partidaRepository.save(partida);
+        // obtener puntaje anterior del usuario
+        int puntajeAnterior = authClient.obtenerPuntajeActual(partida.getUsuarioId());
 
-        // convertir usuarioId a Long si es Integer
+        // persistir la partida con el puntaje final
+        Partida saved = partidaRepository.save(partida);
+
+        // sumar puntaje al usuario en auth-service
         authClient.sumarPuntaje(partida.getUsuarioId(), request.puntajeObtenido());
 
-        return "Partida finalizada con puntaje: " + request.puntajeObtenido();
+        int puntajeNuevoTotal = puntajeAnterior + request.puntajeObtenido();
+
+        return new com.microservice.game_service.dto.FinalizarPartidaResponse(
+            java.util.Objects.requireNonNull(saved.getIdPartida(), "idPartida nulo tras persistir"),
+            request.puntajeObtenido(),
+            puntajeAnterior,
+            puntajeNuevoTotal,
+            saved.getFFinalizacion(),
+            "Partida finalizada exitosamente"
+        );
     }
 }
+
+

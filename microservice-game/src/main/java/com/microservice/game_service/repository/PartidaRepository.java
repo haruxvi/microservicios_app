@@ -1,6 +1,7 @@
 package com.microservice.game_service.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 
 
@@ -18,5 +19,5 @@ public interface PartidaRepository extends JpaRepository<Partida, Long> {
     List<Partida> findByUsuarioId(@Param("usuarioId") Long usuarioId);
 
     @Query("SELECT p FROM Partida p WHERE p.idPartida = :idPartida AND p.estadoId = 1")
-    Partida findActiveById(@Param("idPartida") Long idPartida);
+    Optional<Partida> findActiveById(@Param("idPartida") Long idPartida);
 }
