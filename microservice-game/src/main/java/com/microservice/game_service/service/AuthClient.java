@@ -1,81 +1,49 @@
 package com.microservice.game_service.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.util.Map;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
 public class AuthClient {
-    private final HttpClient httpClient = HttpClient.newHttpClient();
-    private final ObjectMapper objectMapper = new ObjectMapper();
-    private final String baseUrl = "http://auth-service";
 
-    public void sumarPuntaje(Long usuarioId, int puntos) {
-        try {
-            String uri = String.format(baseUrl + "/api/auth/usuario/%s/puntaje-global", usuarioId);
-            String body = objectMapper.writeValueAsString(Map.of("puntos", puntos));
+    private final WebClient webClient;
 
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(uri))
-                    .PUT(HttpRequest.BodyPublishers.ofString(body))
-                    .header("Content-Type", "application/json")
-                    .build();
-
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() < 200 || response.statusCode() >= 300) {
-                throw new RuntimeException("Error al sumar puntaje: HTTP " + response.statusCode());
-            }
-        } catch (IOException | InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException("Error al llamar auth-service", e);
-        }
+    public AuthClient(
+            WebClient.Builder builder,
+            @Value("${auth.service.base-url:http://localhost:8081}") String baseUrl
+    ) {
+        this.webClient = builder.baseUrl(baseUrl).build();
     }
 
-    public int obtenerPuntajeActual(Long usuarioId) {
-        try {
-            String uri = String.format(baseUrl + "/api/auth/usuario/%s/puntaje-global", usuarioId);
+    /**
+     * Obtiene el puntaje global actual del usuario desde auth-service.
+     * Supone un endpoint: GET /api/auth/usuarios/{id}/puntaje-global
+     */
+    public int obtenerPuntajeGlobal(Long usuarioId) {
+        Integer puntaje = webClient
+                .get()
+                .uri("/api/auth/usuarios/{id}/puntaje-global", usuarioId)
+                .retrieve()
+                .bodyToMono(Integer.class)
+                .block();
 
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(uri))
-                    .GET()
-                    .header("Accept", "application/json")
-                    .build();
+        return puntaje != null ? puntaje : 0;
+    }
 
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() < 200 || response.statusCode() >= 300) {
-                throw new RuntimeException("Error al obtener puntaje actual: HTTP " + response.statusCode());
-            }
+    /**
+     * Actualiza el puntaje global sumando delta.
+     * Supone un endpoint: POST /api/auth/usuarios/{id}/puntaje-global?delta={delta}
+     * que devuelve el nuevo puntaje global.
+     */
+    public int actualizarPuntajeGlobal(Long usuarioId, int delta) {
+        Integer nuevoPuntaje = webClient
+                .post()
+                .uri("/api/auth/usuarios/{id}/puntaje-global?delta={delta}", usuarioId, delta)
+                .retrieve()
+                .bodyToMono(Integer.class)
+                .block();
 
-            String body = response.body().trim();
-            // Si el body es solo un número
-            if (body.matches("^-?\\d+$")) {
-                return Integer.parseInt(body);
-            }
-
-            // Intentar parsear JSON como mapa y buscar campos comunes
-            try {
-                @SuppressWarnings("unchecked")
-                java.util.Map<String, Object> map = objectMapper.readValue(body, java.util.Map.class);
-                for (String key : new String[]{"puntaje", "puntos", "score", "puntajeGlobal"}) {
-                    if (map.containsKey(key) && map.get(key) instanceof Number) {
-                        return ((Number) map.get(key)).intValue();
-                    }
-                }
-            } catch (Exception ex) {
-                // fallthrough
-            }
-
-            throw new RuntimeException("Respuesta inválida al obtener puntaje: " + body);
-        } catch (IOException | InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException("Error al llamar auth-service", e);
-        }
+        return nuevoPuntaje != null ? nuevoPuntaje : 0;
     }
 }

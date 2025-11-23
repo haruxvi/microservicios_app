@@ -1,23 +1,21 @@
 package com.microservice.game_service.controller;
 
-
-
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-
 import com.microservice.game_service.dto.FinalizarPartidaRequest;
 import com.microservice.game_service.dto.FinalizarPartidaResponse;
 import com.microservice.game_service.dto.IniciarPartidaRequest;
 import com.microservice.game_service.dto.IniciarPartidaResponse;
+import com.microservice.game_service.dto.PartidaResponse;
 import com.microservice.game_service.service.PartidaService;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 
 @RestController
-@RequestMapping("/api/game")
-@Tag(name = "Game Service", description = "Orquestador del juego")
+@RequestMapping("/api/game/partidas")
+@Tag(name = "Partidas", description = "Gestión de partidas e historial de juego")
 public class PartidaController {
 
     private final PartidaService partidaService;
@@ -34,5 +32,10 @@ public class PartidaController {
     @PostMapping("/finalizar")
     public ResponseEntity<FinalizarPartidaResponse> finalizar(@Valid @RequestBody FinalizarPartidaRequest request) {
         return ResponseEntity.ok(partidaService.finalizarPartida(request));
+    }
+
+    @GetMapping("/usuario/{usuarioId}")
+    public ResponseEntity<List<PartidaResponse>> obtenerPartidasPorUsuario(@PathVariable Long usuarioId) {
+        return ResponseEntity.ok(partidaService.obtenerPartidasPorUsuario(usuarioId));
     }
 }

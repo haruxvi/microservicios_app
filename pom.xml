@@ -11,6 +11,7 @@
     <module>microservice-auth-service</module>
     <module>microservice-quiz</module>
     <module>microservice-game</module>
+    <module>microservice-feedback</module>
   </modules>
 
   <parent>

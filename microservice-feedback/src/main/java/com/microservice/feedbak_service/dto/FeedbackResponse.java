@@ -1,12 +1,13 @@
+package com.microservice.feedbak_service.dto;
 
-package com.example.quizapp.feedback.dto;
+import java.time.LocalDateTime;
 
 public record FeedbackResponse(
     Long id,
     String mensaje,
     String tipo,
     String destino,
-    String fecha,
+    LocalDateTime fecha,
     boolean resuelto,
     Long usuarioId
 ) {}

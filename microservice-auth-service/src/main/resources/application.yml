@@ -1,20 +1,26 @@
 server:
   port: 8081
+
 spring:
   application:
-    name: msvc-auth-service
+    name: auth-service
+  config:
+    import: optional:configserver:http://localhost:8888
+
   datasource:
-    url: jdbc:mysql://localhost:3306/db_quizapp?useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://localhost:3306/db_quizapp?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: root
     password: 
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
+
 eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
-springdoc:
-  swagger-ui:
-    path: /swagger-ui.html
+    register-with-eureka: true
+    fetch-registry: true

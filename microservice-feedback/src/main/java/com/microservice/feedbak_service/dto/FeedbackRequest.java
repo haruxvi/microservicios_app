@@ -1,7 +1,8 @@
-// dto/FeedbackRequest.java
-package com.example.quizapp.feedback.dto;
+package com.microservice.feedbak_service.dto;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 public record FeedbackRequest(
     @NotNull Long usuarioId,

@@ -1,5 +1,12 @@
 package com.microservice.game_service.dto;
 
-public class FinalizarPartidaResponse {
+import java.time.LocalDateTime;
 
-}
+public record FinalizarPartidaResponse(
+        Long partidaId,
+        int puntajeObtenido,
+        int puntajeAnteriorGlobal,
+        int puntajeNuevoGlobal,
+        LocalDateTime fechaFin,
+        String mensaje
+) {}
