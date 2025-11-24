@@ -5,8 +5,14 @@ import com.microservice.auth_service.microservice_auth_service.dto.UsuarioRespon
 import com.microservice.auth_service.microservice_auth_service.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.dao.DataIntegrityViolationException;
+
 
 import java.util.List;
 
@@ -47,9 +53,16 @@ public class UsuarioController {
     }
 
     @Operation(summary = "Eliminar usuario")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        usuarioService.delete(id);
-        return ResponseEntity.noContent().build();
+   @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable Long id) {
+        try {
+            usuarioService.delete(id);
+            return ResponseEntity.noContent().build();
+        } catch (DataIntegrityViolationException ex) {
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)   // 👈 aquí va HttpStatus
+                    .body("No se puede eliminar el usuario porque tiene datos asociados (partidas, feedback, etc.)");
+        }
     }
+
 }
