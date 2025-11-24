@@ -32,4 +32,5 @@ public class EstadoController {
     public ResponseEntity<EstadoResponse> create(@RequestBody EstadoRequest request) {
         return ResponseEntity.ok(estadoService.create(request));
     }
+    
 }

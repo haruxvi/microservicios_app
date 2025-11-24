@@ -91,6 +91,40 @@ public class PreguntaService {
         return toResponse(saved);
     }
 
+    public PreguntaResponse update(Long id, PreguntaRequest request) {
+        Pregunta p = preguntaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Pregunta no encontrada"));
+
+        Categoria categoria = categoriaRepository.findById(request.getIdCategoria())
+                .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+        Dificultad dificultad = dificultadRepository.findById(request.getIdDificultad())
+                .orElseThrow(() -> new RuntimeException("Dificultad no encontrada"));
+        Estado estado = estadoRepository.findById(request.getIdEstado())
+                .orElseThrow(() -> new RuntimeException("Estado no encontrado"));
+
+        // Actualizar datos básicos
+        p.setEnunciado(request.getEnunciado());
+        p.setCategoria(categoria);
+        p.setDificultad(dificultad);
+        p.setEstado(estado);
+
+        // Limpiar opciones anteriores y volver a crearlas
+        p.getOpciones().clear();
+
+        if (request.getOpciones() == null || request.getOpciones().isEmpty()) {
+            throw new RuntimeException("La pregunta debe tener al menos una opción");
+        }
+
+        request.getOpciones().forEach(oReq -> {
+            Opcion o = new Opcion(oReq.getTexto(), oReq.isEsCorrecta());
+            p.addOpcion(o);
+        });
+
+        Pregunta saved = preguntaRepository.save(p);
+        return toResponse(saved);
+    }
+
+
     public void delete(Long id) {
         if (!preguntaRepository.existsById(id)) {
             throw new RuntimeException("Pregunta no encontrada");

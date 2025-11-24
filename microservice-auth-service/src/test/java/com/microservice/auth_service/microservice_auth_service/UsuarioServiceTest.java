@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -169,4 +170,57 @@ class UsuarioServiceTest {
 
         verify(usuarioRepository).deleteById(5L);
     }
+
+        @Test
+    void obtenerPuntajeGlobal_debeRetornarValorCuandoExiste() {
+        usuario.setPuntajeGlobal(150);
+
+        when(usuarioRepository.findById(5L)).thenReturn(Optional.of(usuario));
+
+        int resultado = usuarioService.obtenerPuntajeGlobal(5L);
+
+        assertEquals(150, resultado);
+        verify(usuarioRepository).findById(5L);
+    }
+
+    @Test
+    void obtenerPuntajeGlobal_debeRetornarCeroCuandoEsNull() {
+        usuario.setPuntajeGlobal(null);
+
+        when(usuarioRepository.findById(5L)).thenReturn(Optional.of(usuario));
+
+        int resultado = usuarioService.obtenerPuntajeGlobal(5L);
+
+        assertEquals(0, resultado);
+        verify(usuarioRepository).findById(5L);
+    }
+
+    @Test
+    void actualizarPuntajeGlobal_debeSumarDeltaYGuardar() {
+        usuario.setPuntajeGlobal(80);
+
+        when(usuarioRepository.findById(5L)).thenReturn(Optional.of(usuario));
+
+        int nuevo = usuarioService.actualizarPuntajeGlobal(5L, 20);
+
+        assertEquals(100, nuevo);
+        assertEquals(100, usuario.getPuntajeGlobal());
+        verify(usuarioRepository).findById(5L);
+        verify(usuarioRepository).save(usuario);
+    }
+
+    @Test
+    void actualizarPuntajeGlobal_debeUsarCeroSiPuntajeEsNull() {
+        usuario.setPuntajeGlobal(null);
+
+        when(usuarioRepository.findById(5L)).thenReturn(Optional.of(usuario));
+
+        int nuevo = usuarioService.actualizarPuntajeGlobal(5L, 30);
+
+        assertEquals(30, nuevo);
+        assertEquals(30, usuario.getPuntajeGlobal());
+        verify(usuarioRepository).findById(5L);
+        verify(usuarioRepository).save(usuario);
+    }
+
 }

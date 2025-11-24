@@ -95,16 +95,17 @@ class DtoTest {
         OpcionResponse dto = new OpcionResponse();
         dto.setId(6L);
         dto.setTexto("Respuesta");
-        dto.setEsCorrecta(true);
+        // 👇 ahora usamos correcta en vez de esCorrecta
+        dto.setCorrecta(true);
 
         assertEquals(6L, dto.getId());
         assertEquals("Respuesta", dto.getTexto());
-        assertTrue(dto.isEsCorrecta());
+        assertTrue(dto.isCorrecta());
 
         OpcionResponse dto2 = new OpcionResponse(7L, "Otra", false);
         assertEquals(7L, dto2.getId());
         assertEquals("Otra", dto2.getTexto());
-        assertFalse(dto2.isEsCorrecta());
+        assertFalse(dto2.isCorrecta());
     }
 
     @Test

@@ -62,6 +62,16 @@ public class PreguntaController {
         return ResponseEntity.ok(preguntaService.create(request));
     }
 
+    @Operation(summary = "Actualizar una pregunta con opciones")
+    @PutMapping("/{id}")
+    public ResponseEntity<PreguntaResponse> update(
+            @PathVariable Long id,
+            @RequestBody PreguntaRequest request
+    ) {
+        return ResponseEntity.ok(preguntaService.update(id, request));
+    }
+
+
     @Operation(summary = "Eliminar pregunta")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {

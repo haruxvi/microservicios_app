@@ -101,6 +101,7 @@ public class UsuarioService {
         usuarioRepository.deleteById(id);
     }
 
+
     private UsuarioResponse toResponse(Usuario usuario) {
         return new UsuarioResponse(
                 usuario.getId(),
@@ -112,4 +113,27 @@ public class UsuarioService {
                 usuario.getPuntajeGlobal()
         );
     }
+
+        @Transactional(readOnly = true)
+    public int obtenerPuntajeGlobal(Long usuarioId) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        Integer actual = usuario.getPuntajeGlobal();
+        return actual != null ? actual : 0;
+    }
+
+    @Transactional
+    public int actualizarPuntajeGlobal(Long usuarioId, int delta) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        int actual = usuario.getPuntajeGlobal() != null ? usuario.getPuntajeGlobal() : 0;
+        int nuevo = actual + delta;
+        usuario.setPuntajeGlobal(nuevo);
+
+        usuarioRepository.save(usuario);
+        return nuevo;
+    }
+
 }

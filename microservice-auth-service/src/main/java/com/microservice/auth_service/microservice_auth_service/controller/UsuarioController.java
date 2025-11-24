@@ -65,4 +65,22 @@ public class UsuarioController {
         }
     }
 
+    @Operation(summary = "Obtener puntaje global de un usuario")
+    @GetMapping("/{id}/puntaje-global")
+    public ResponseEntity<Integer> getPuntajeGlobal(@PathVariable Long id) {
+        int puntaje = usuarioService.obtenerPuntajeGlobal(id);
+        return ResponseEntity.ok(puntaje);
+    }
+
+    @Operation(summary = "Actualizar puntaje global sumando un delta")
+    @PostMapping("/{id}/puntaje-global")
+    public ResponseEntity<Integer> updatePuntajeGlobal(
+            @PathVariable Long id,
+            @RequestParam("delta") int delta
+    ) {
+        int nuevo = usuarioService.actualizarPuntajeGlobal(id, delta);
+        return ResponseEntity.ok(nuevo);
+    }
+
+
 }

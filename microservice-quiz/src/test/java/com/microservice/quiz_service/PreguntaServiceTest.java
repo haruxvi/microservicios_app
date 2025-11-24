@@ -68,14 +68,15 @@ class PreguntaServiceTest {
 
         Opcion o1 = new Opcion("3", false);
         o1.setId(100L);
-        o1.setPregunta(pregunta);
 
         Opcion o2 = new Opcion("4", true);
         o2.setId(101L);
-        o2.setPregunta(pregunta);
 
-        pregunta.setOpciones(List.of(o1, o2));
+        // ✅ Usar el método que ya tiene la entidad; su lista interna es mutable
+        pregunta.addOpcion(o1);
+        pregunta.addOpcion(o2);
     }
+
 
     @Test
     void create_debeCrearPreguntaConOpciones() {
@@ -210,5 +211,105 @@ class PreguntaServiceTest {
         verify(preguntaRepository).existsById(99L);
         verify(preguntaRepository, never()).deleteById(anyLong());
     }
+
+        @Test
+    void getByDificultad_debeRetornarPreguntasFiltradas() {
+        when(preguntaRepository.findByDificultad_Id(1L))
+                .thenReturn(List.of(pregunta));
+
+        var resultado = preguntaService.getByDificultad(1L);
+
+        assertEquals(1, resultado.size());
+        assertEquals(10L, resultado.get(0).getId());
+        assertEquals("¿2+2?", resultado.get(0).getEnunciado());
+
+        verify(preguntaRepository).findByDificultad_Id(1L);
+    }
+
+    @Test
+    void getByCategoriaAndDificultad_debeRetornarPreguntasFiltradas() {
+        when(preguntaRepository.findByCategoria_IdAndDificultad_Id(1L, 1L))
+                .thenReturn(List.of(pregunta));
+
+        var resultado = preguntaService.getByCategoriaAndDificultad(1L, 1L);
+
+        assertEquals(1, resultado.size());
+        assertEquals(10L, resultado.get(0).getId());
+        assertEquals("¿2+2?", resultado.get(0).getEnunciado());
+
+        verify(preguntaRepository)
+                .findByCategoria_IdAndDificultad_Id(1L, 1L);
+    }
+
+    @Test
+    void update_debeActualizarPreguntaYOpciones() {
+        PreguntaRequest request = new PreguntaRequest();
+        request.setEnunciado("¿3+3?");
+        request.setIdCategoria(1L);
+        request.setIdDificultad(1L);
+        request.setIdEstado(1L);
+        request.setOpciones(List.of(
+                new OpcionRequest("5", false),
+                new OpcionRequest("6", true)
+        ));
+
+        when(preguntaRepository.findById(10L)).thenReturn(Optional.of(pregunta));
+        when(categoriaRepository.findById(1L)).thenReturn(Optional.of(categoria));
+        when(dificultadRepository.findById(1L)).thenReturn(Optional.of(dificultad));
+        when(estadoRepository.findById(1L)).thenReturn(Optional.of(estado));
+        when(preguntaRepository.save(any(Pregunta.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
+
+        PreguntaResponse resp = preguntaService.update(10L, request);
+
+        assertEquals(10L, resp.getId());
+        assertEquals("¿3+3?", resp.getEnunciado());
+        assertEquals(2, resp.getOpciones().size());
+        assertEquals("5", resp.getOpciones().get(0).getTexto());
+        assertEquals("6", resp.getOpciones().get(1).getTexto());
+
+        verify(preguntaRepository).findById(10L);
+        verify(preguntaRepository).save(any(Pregunta.class));
+    }
+
+    @Test
+    void update_debeLanzarExcepcionSiPreguntaNoExiste() {
+        PreguntaRequest request = new PreguntaRequest();
+        request.setEnunciado("cualquiera");
+        request.setIdCategoria(1L);
+        request.setIdDificultad(1L);
+        request.setIdEstado(1L);
+        request.setOpciones(List.of(new OpcionRequest("x", true)));
+
+        when(preguntaRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(RuntimeException.class,
+                () -> preguntaService.update(99L, request));
+
+        verify(preguntaRepository).findById(99L);
+        verify(preguntaRepository, never()).save(any());
+    }
+
+    @Test
+    void update_debeLanzarExcepcionSiNoTieneOpciones() {
+        PreguntaRequest request = new PreguntaRequest();
+        request.setEnunciado("¿4+4?");
+        request.setIdCategoria(1L);
+        request.setIdDificultad(1L);
+        request.setIdEstado(1L);
+        request.setOpciones(List.of()); // lista vacía
+
+        when(preguntaRepository.findById(10L)).thenReturn(Optional.of(pregunta));
+        when(categoriaRepository.findById(1L)).thenReturn(Optional.of(categoria));
+        when(dificultadRepository.findById(1L)).thenReturn(Optional.of(dificultad));
+        when(estadoRepository.findById(1L)).thenReturn(Optional.of(estado));
+
+        assertThrows(RuntimeException.class,
+                () -> preguntaService.update(10L, request));
+
+        verify(preguntaRepository).findById(10L);
+        verify(preguntaRepository, never()).save(any());
+    }
+
 
 }
