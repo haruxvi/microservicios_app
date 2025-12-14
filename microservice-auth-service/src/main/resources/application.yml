@@ -1,0 +1,50 @@
+server:
+  port: 8081
+  error:
+    include-message: always
+    include-exception: true
+    include-stacktrace: always
+
+spring:
+  application:
+    name: auth-service
+  config:
+    import: optional:configserver:http://localhost:8888
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/db_auth?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: root
+    password:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  sql:
+    init:
+      mode: always
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    defer-datasource-initialization: true
+
+
+
+
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+
+springdoc:
+  swagger-ui:
+    disable-swagger-default-url: true
+  override-with-generic-response: false
+  model-and-view-allowed: false
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+
+  
+
